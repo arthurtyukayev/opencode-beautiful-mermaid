@@ -1,38 +1,76 @@
-# opencode-beautiful-mermaid
+# OpenCode Beautiful Mermaid
 
-An Opencode plugin for rendering Mermaid diagrams as beautiful ASCII/Unicode art.
+An OpenCode plugin for rendering Mermaid diagrams as beautiful ASCII/Unicode art.
 
-## Features
+## Tool
 
-- Render any valid mermaid diagram syntax to ASCII/Unicode art.
-- Supported diagrams include: Flowcharts, Sequence Diagrams, Class Diagrams, ER Diagrams, State Diagrams, and more.
-- Highly customizable with options for padding, box borders, and ASCII/Unicode modes.
-- Powered by [beautiful-mermaid](https://github.com/beautiful-mermaid).
+### `mermaid-renderer`
+
+Render mermaid diagram syntax as ASCII/Unicode art.
+
+**Args**
+- `diagram` (string, required): The mermaid diagram syntax
+- `useAscii` (boolean, optional): Use ASCII instead of Unicode (default: `false`)
+- `paddingX` (number, optional): Horizontal spacing between nodes (default: `5`)
+- `paddingY` (number, optional): Vertical spacing between nodes (default: `5`)
+- `boxBorderPadding` (number, optional): Padding inside node boxes (default: `1`)
+
+**Returns**
+- `output` (string): The rendered ASCII/Unicode diagram
+- `success` (boolean): Whether rendering succeeded
+- `error` (string, optional): Error message if rendering failed
+
+**Supported Diagram Types**
+- Flowcharts: `graph TD`, `graph LR`, `graph BT`, `graph RL`
+- Sequence Diagrams: `sequenceDiagram`
+- Class Diagrams: `classDiagram`
+- ER Diagrams: `erDiagram`
+- State Diagrams: `stateDiagram-v2`
 
 ## Installation
 
-You can install this plugin locally using:
+### npm (Recommended)
+
+Add the package to your OpenCode config:
+
+```json
+{
+  "plugin": ["opencode-beautiful-mermaid"]
+}
+```
+
+Supported config locations:
+- Global config: `~/.config/opencode/opencode.json`
+- Project config: `.opencode/opencode.json`
+
+Restart OpenCode so the plugin is loaded.
+
+### Local Plugin
+
+Install directly from this repo:
 
 ```bash
-bun add opencode-beautiful-mermaid
+bun run install:local
 ```
 
-## Usage
+This copies `index.ts` to:
 
-This plugin registers the `mermaid-renderer` tool with Opencode. When a user asks to visualize a diagram, flow, or relationship, the Opencode agent can use this tool to render the diagram directly in the terminal output.
+```bash
+~/.config/opencode/plugins/beautiful-mermaid.ts
+```
 
-### Tool Parameters
+Manual copy option:
 
-- `diagram` (string, required): The mermaid diagram syntax.
-- `useAscii` (boolean, optional): Use plain ASCII characters instead of Unicode (default: `false`).
-- `paddingX` (number, optional): Horizontal padding between nodes (default: `5`).
-- `paddingY` (number, optional): Vertical padding between nodes (default: `5`).
-- `boxBorderPadding` (number, optional): Padding inside the drawn boxes (default: `1`).
+```bash
+mkdir -p ~/.config/opencode/plugins
+cp src/index.ts ~/.config/opencode/plugins/beautiful-mermaid.ts
+```
 
-## Example Tool Output
+Restart OpenCode and the tool will be available automatically.
+
+## Example Output
 
 ```
-1. Flowchart (TD):
 ┌──────────┐            
 │          │            
 │  Start   │            
@@ -58,18 +96,19 @@ This plugin registers the `mermaid-renderer` tool with Opencode. When a user ask
 
 ## Development
 
-To develop and test the plugin locally:
-
 ```bash
-# Install dependencies
 bun install
-
-# Run tests
 bun run test
-
-# Build the plugin
 bun run build
 ```
+
+## Publish Checklist
+
+- Run type checks: `bun run typecheck`
+- Build distributable file: `bun run build`
+- Preview package contents: `bun pm pack --dry-run`
+- Confirm version bump uses SemVer (`bun pm version patch|minor|major`)
+- Publish: `bun publish`
 
 ## License
 

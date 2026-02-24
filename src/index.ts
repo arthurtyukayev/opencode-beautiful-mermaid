@@ -94,7 +94,12 @@ export const MermaidRendererPlugin: Plugin = async () => {
             paddingY: args.paddingY,
             boxBorderPadding: args.boxBorderPadding,
           });
-          return JSON.stringify(result);
+          
+          if (!result.success) {
+            return `Error: ${result.error}`;
+          }
+          
+          return `\`\`\`\n${result.output}\n\`\`\``;
         },
       }),
     },
