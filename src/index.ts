@@ -99,7 +99,7 @@ export const MermaidRendererPlugin: Plugin = async () => {
             return `Error: ${result.error}`;
           }
           
-          return `\`\`\`\n${result.output}\n\`\`\``;
+          return result.output;
         },
       }),
     },

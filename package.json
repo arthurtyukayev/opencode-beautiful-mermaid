@@ -1,6 +1,6 @@
 {
   "name": "opencode-beautiful-mermaid",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Opencode plugin for rendering mermaid diagrams as Unicode/ASCII art using beautiful-mermaid",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
