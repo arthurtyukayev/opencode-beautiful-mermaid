@@ -5,8 +5,6 @@ import { tool } from "@opencode-ai/plugin/tool";
 export interface MermaidRendererOptions {
   /** Mermaid diagram syntax */
   diagram: string;
-  /** Use ASCII instead of Unicode (default: false) */
-  useAscii?: boolean;
   /** Horizontal spacing between nodes (default: 5) */
   paddingX?: number;
   /** Vertical spacing between nodes (default: 5) */
@@ -16,7 +14,7 @@ export interface MermaidRendererOptions {
 }
 
 export interface MermaidRendererResult {
-  /** The rendered ASCII/Unicode diagram */
+  /** The rendered Unicode diagram */
   output: string;
   /** Whether the rendering was successful */
   success: boolean;
@@ -24,9 +22,22 @@ export interface MermaidRendererResult {
   error?: string;
 }
 
+export interface MermaidRendererToolResponse {
+  /** Whether the rendering was successful */
+  success: boolean;
+  /** The rendered Unicode diagram */
+  output: string;
+  /** Markdown-ready display content for hosts/UIs */
+  rendered?: string;
+  /** Full tool result text returned to the model */
+  content: string;
+  /** Error message if rendering failed */
+  error?: string;
+}
+
 export function mermaidRenderer(options: MermaidRendererOptions): MermaidRendererResult {
   try {
-    const { diagram, useAscii = false, paddingX = 5, paddingY = 5, boxBorderPadding = 1 } = options;
+    const { diagram, paddingX = 5, paddingY = 5, boxBorderPadding = 1 } = options;
 
     if (!diagram || diagram.trim().length === 0) {
       return {
@@ -37,7 +48,7 @@ export function mermaidRenderer(options: MermaidRendererOptions): MermaidRendere
     }
 
     const output = renderMermaidAscii(diagram, {
-      useAscii,
+      useAscii: false,
       paddingX,
       paddingY,
       boxBorderPadding
@@ -56,20 +67,50 @@ export function mermaidRenderer(options: MermaidRendererOptions): MermaidRendere
   }
 }
 
+export function formatMermaidToolResponse(result: MermaidRendererResult): MermaidRendererToolResponse {
+  if (!result.success) {
+    return {
+      success: false,
+      output: '',
+      content: `Error: ${result.error ?? 'Unknown error occurred'}`,
+      error: result.error ?? 'Unknown error occurred'
+    };
+  }
+
+  const trimmedOutput = result.output.trim();
+
+  if (trimmedOutput.length === 0) {
+    return {
+      success: false,
+      output: '',
+      content: 'Error: Renderer returned empty output',
+      error: 'Renderer returned empty output'
+    };
+  }
+
+  const rendered = "Rendered Mermaid diagram:\n\n```text\n" + result.output + "\n```";
+
+  return {
+    success: true,
+    output: result.output,
+    rendered,
+    content: [
+      rendered,
+      '',
+      'IMPORTANT: Include the rendered diagram above verbatim in your chat response. Do not summarize or omit it.'
+    ].join('\n')
+  };
+}
+
 export const MermaidRendererPlugin: Plugin = async () => {
   return {
     tool: {
       "mermaid-renderer": tool({
-        description: "Render mermaid diagrams as beautiful Unicode art. Supports any valid mermaid diagram type including flowcharts, sequence diagrams, class diagrams, ER diagrams, state diagrams, and more.",
+        description: "Render mermaid diagrams as beautiful Unicode art. Supports any valid mermaid diagram type including flowcharts, sequence diagrams, class diagrams, ER diagrams, state diagrams, and more. After using this tool, include the returned rendered diagram verbatim in your chat response so the user can see it.",
         args: {
           diagram: tool.schema
             .string()
             .describe("The mermaid diagram syntax"),
-          useAscii: tool.schema
-            .boolean()
-            .optional()
-            .default(false)
-            .describe("Use ASCII instead of Unicode, use default unless instructed otherwise(default: false)"),
           paddingX: tool.schema
             .number()
             .optional()
@@ -86,20 +127,16 @@ export const MermaidRendererPlugin: Plugin = async () => {
             .default(1)
             .describe("Padding inside node boxes (default: 1)"),
         },
-        async execute(args: any) {
+        async execute(args: any): Promise<string> {
           const result = mermaidRenderer({
             diagram: args.diagram,
-            useAscii: args.useAscii,
             paddingX: args.paddingX,
             paddingY: args.paddingY,
             boxBorderPadding: args.boxBorderPadding,
           });
-          
-          if (!result.success) {
-            return `Error: ${result.error}`;
-          }
-          
-          return result.output;
+
+          const response = formatMermaidToolResponse(result);
+          return response.content;
         },
       }),
     },

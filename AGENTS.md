@@ -1,12 +1,12 @@
 # Mermaid Renderer Plugin for Opencode
 
-This plugin provides a `mermaid-renderer` tool for rendering mermaid diagrams as beautiful ASCII/Unicode art.
+This plugin provides a `mermaid-renderer` tool for rendering mermaid diagrams as beautiful Unicode art.
 
 ## When to Use
 
 Use the `mermaid-renderer` tool when:
 - The user asks to create or visualize a diagram
-- You need to render any mermaid diagram to ASCII/Unicode art
+- You need to render any mermaid diagram to Unicode art
 - The user wants to see a visual representation of relationships, flows, or structures
 
 ## Supported Diagram Types
@@ -23,19 +23,21 @@ This tool can render **any valid mermaid diagram**, including:
 
 ### mermaid-renderer
 
-Renders mermaid diagram syntax as ASCII/Unicode art.
+Renders mermaid diagram syntax as Unicode art.
 
 **Parameters:**
 - `diagram` (string, required): The mermaid diagram syntax
-- `useAscii` (boolean, optional): Use ASCII instead of Unicode (default: false)
 - `paddingX` (number, optional): Horizontal spacing between nodes (default: 5)
 - `paddingY` (number, optional): Vertical spacing between nodes (default: 5)
 - `boxBorderPadding` (number, optional): Padding inside node boxes (default: 1)
 
 **Returns:**
-- `output` (string): The rendered ASCII/Unicode diagram
 - `success` (boolean): Whether rendering succeeded
+- `output` (string): The rendered Unicode diagram
+- `rendered` (string, optional): Markdown-wrapped display content (present on success)
 - `error` (string, optional): Error message if rendering failed
+
+**Important:** Always check `success` before using `output`. On a successful render, `output` is guaranteed to be non-empty and `rendered` will contain a markdown-wrapped version. On failure, `error` will contain the error message.
 
 ## Examples
 
@@ -113,17 +115,16 @@ const result = await mermaidRenderer({
 
 1. **Always validate the result**: Check `result.success` before using `result.output`
 2. **Use appropriate diagram types**: Choose the diagram type that best represents the information
-3. **Keep diagrams simple**: Complex diagrams may not render well in ASCII
-4. **Use Unicode for better visuals**: Set `useAscii: false` (default) for prettier box-drawing characters
-5. **Adjust spacing if needed**: Increase `paddingX` or `paddingY` for larger diagrams
+3. **Keep diagrams simple**: Complex diagrams may not render well in terminal output
+4. **Adjust spacing if needed**: Increase `paddingX` or `paddingY` for larger diagrams
 
 ## Error Handling
 
 If rendering fails, the tool returns:
 ```typescript
 {
-  output: '',
   success: false,
+  output: '',
   error: 'Error message here'
 }
 ```

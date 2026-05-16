@@ -17,7 +17,7 @@ echo "Installing mermaid-renderer plugin to $TARGET_FILE..."
 mkdir -p "$TARGET_DIR"
 
 # Copy the bundled plugin file
-cp "$PLUGIN_ROOT/dist/mermaid-renderer.js" "$TARGET_FILE"
+cp "$PLUGIN_ROOT/dist/index.js" "$TARGET_FILE"
 
 echo "✅ Successfully installed plugin to: $TARGET_FILE"
 echo "Restart OpenCode to load the updated plugin."

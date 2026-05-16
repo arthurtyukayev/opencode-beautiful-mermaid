@@ -1,23 +1,23 @@
 # OpenCode Beautiful Mermaid
 
-An OpenCode plugin for rendering Mermaid diagrams as beautiful ASCII/Unicode art.
+An OpenCode plugin for rendering Mermaid diagrams as beautiful Unicode art.
 
 ## Tool
 
 ### `mermaid-renderer`
 
-Render mermaid diagram syntax as ASCII/Unicode art.
+Render mermaid diagram syntax as Unicode art.
 
 **Args**
 - `diagram` (string, required): The mermaid diagram syntax
-- `useAscii` (boolean, optional): Use ASCII instead of Unicode (default: `false`)
 - `paddingX` (number, optional): Horizontal spacing between nodes (default: `5`)
 - `paddingY` (number, optional): Vertical spacing between nodes (default: `5`)
 - `boxBorderPadding` (number, optional): Padding inside node boxes (default: `1`)
 
 **Returns**
-- `output` (string): The rendered ASCII/Unicode diagram
 - `success` (boolean): Whether rendering succeeded
+- `output` (string): The rendered Unicode diagram
+- `rendered` (string, optional): Markdown-wrapped display content (present on success)
 - `error` (string, optional): Error message if rendering failed
 
 **Supported Diagram Types**

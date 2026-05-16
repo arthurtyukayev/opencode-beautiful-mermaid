@@ -1,4 +1,4 @@
-import { mermaidRenderer } from './index.js';
+import { mermaidRenderer, formatMermaidToolResponse } from './index.js';
 
 console.log('=== Mermaid Renderer Plugin Test ===\n');
 
@@ -15,6 +15,7 @@ const flowchartResult = mermaidRenderer({
 
 if (flowchartResult.success) {
   console.log(flowchartResult.output);
+  console.log('(output length:', flowchartResult.output.trim().length, 'chars)');
 } else {
   console.error('Error:', flowchartResult.error);
 }
@@ -35,6 +36,7 @@ const sequenceResult = mermaidRenderer({
 
 if (sequenceResult.success) {
   console.log(sequenceResult.output);
+  console.log('(output length:', sequenceResult.output.trim().length, 'chars)');
 } else {
   console.error('Error:', sequenceResult.error);
 }
@@ -57,26 +59,27 @@ const classResult = mermaidRenderer({
 
 if (classResult.success) {
   console.log(classResult.output);
+  console.log('(output length:', classResult.output.trim().length, 'chars)');
 } else {
   console.error('Error:', classResult.error);
 }
 
 console.log('\n---\n');
 
-// Test 4: ASCII Mode
-console.log('4. Flowchart (ASCII mode):');
-const asciiResult = mermaidRenderer({
+// Test 4: Flowchart (LR)
+console.log('4. Flowchart (LR):');
+const lrResult = mermaidRenderer({
   diagram: `
     graph LR
       A --> B --> C
-  `,
-  useAscii: true
+  `
 });
 
-if (asciiResult.success) {
-  console.log(asciiResult.output);
+if (lrResult.success) {
+  console.log(lrResult.output);
+  console.log('(output length:', lrResult.output.trim().length, 'chars)');
 } else {
-  console.error('Error:', asciiResult.error);
+  console.error('Error:', lrResult.error);
 }
 
 console.log('\n---\n');
@@ -95,13 +98,14 @@ const stateResult = mermaidRenderer({
 
 if (stateResult.success) {
   console.log(stateResult.output);
+  console.log('(output length:', stateResult.output.trim().length, 'chars)');
 } else {
   console.error('Error:', stateResult.error);
 }
 
 console.log('\n---\n');
 
-// Test 6: Error handling
+// Test 6: Error handling (empty diagram)
 console.log('6. Error handling (empty diagram):');
 const errorResult = mermaidRenderer({
   diagram: ''
@@ -109,5 +113,57 @@ const errorResult = mermaidRenderer({
 
 console.log('Success:', errorResult.success);
 console.log('Error:', errorResult.error);
+
+console.log('\n---\n');
+
+// Test 7: formatMermaidToolResponse always includes output
+console.log('7. Tool response never omits output:');
+const toolResult = formatMermaidToolResponse(flowchartResult);
+
+if (!toolResult.success || !toolResult.output || toolResult.output.trim().length === 0) {
+  console.error('FAIL: tool response missing output on success');
+  process.exit(1);
+}
+
+if (!toolResult.rendered || toolResult.rendered.trim().length === 0) {
+  console.error('FAIL: tool response missing rendered field on success');
+  process.exit(1);
+}
+
+if (!toolResult.content.includes(toolResult.output)) {
+  console.error('FAIL: tool content does not include rendered output');
+  process.exit(1);
+}
+
+if (!toolResult.content.includes('Include the rendered diagram above verbatim')) {
+  console.error('FAIL: tool content missing chat-display instruction');
+  process.exit(1);
+}
+
+console.log('PASS: successful render includes output, rendered, and content fields');
+console.log('content preview:', toolResult.content.substring(0, 80) + '...');
+
+console.log('\n---\n');
+
+// Test 8: formatMermaidToolResponse for error case
+console.log('8. Tool response for error:');
+const errorToolResult = formatMermaidToolResponse(errorResult);
+
+if (errorToolResult.success) {
+  console.error('FAIL: error result should have success=false');
+  process.exit(1);
+}
+
+if (!errorToolResult.error || errorToolResult.error.length === 0) {
+  console.error('FAIL: error result missing error message');
+  process.exit(1);
+}
+
+if (!errorToolResult.content.startsWith('Error:')) {
+  console.error('FAIL: error result content should be displayable');
+  process.exit(1);
+}
+
+console.log('PASS: error response has success=false and error message');
 
 console.log('\n=== All tests completed ===');
