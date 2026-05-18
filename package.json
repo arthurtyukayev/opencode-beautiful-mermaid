@@ -1,6 +1,6 @@
 {
   "name": "opencode-beautiful-mermaid",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Opencode plugin for rendering mermaid diagrams as Unicode/ASCII art using beautiful-mermaid",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,7 +27,7 @@
   "author": "Arthur Tyukayev",
   "license": "MIT",
   "dependencies": {
-    "beautiful-mermaid": "^0.1.3"
+    "beautiful-mermaid": "^1.1.3"
   },
   "devDependencies": {
     "@opencode-ai/plugin": "^1.2.10",

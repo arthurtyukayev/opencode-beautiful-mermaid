@@ -1,6 +1,12 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { renderMermaidAscii } from 'beautiful-mermaid';
 import { type Plugin } from "@opencode-ai/plugin";
 import { tool } from "@opencode-ai/plugin/tool";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface MermaidRendererOptions {
   /** Mermaid diagram syntax */
@@ -33,6 +39,15 @@ export interface MermaidRendererToolResponse {
   content: string;
   /** Error message if rendering failed */
   error?: string;
+}
+
+function getBundledSkillsPath(): string | undefined {
+  const candidates = [
+    path.join(__dirname, "..", "skills"),
+    path.join(__dirname, "skills"),
+  ];
+
+  return candidates.find((candidate) => existsSync(candidate));
 }
 
 export function mermaidRenderer(options: MermaidRendererOptions): MermaidRendererResult {
@@ -104,6 +119,25 @@ export function formatMermaidToolResponse(result: MermaidRendererResult): Mermai
 
 export const MermaidRendererPlugin: Plugin = async () => {
   return {
+    config: async (config: any) => {
+      const skillsPath = getBundledSkillsPath();
+      if (!skillsPath) return;
+
+      config.skills ??= {};
+      config.skills.paths ??= [];
+
+      if (!config.skills.paths.includes(skillsPath)) {
+        config.skills.paths.push(skillsPath);
+      }
+    },
+    "tool.definition": async (input, output) => {
+      if (input.toolID !== "mermaid-renderer") return;
+
+      output.description = [
+        output.description,
+        "Use this automatically for diagram creation or visualization requests, then include the rendered Unicode output verbatim in the final response."
+      ].join(" ");
+    },
     tool: {
       "mermaid-renderer": tool({
         description: "Render mermaid diagrams as beautiful Unicode art. Supports any valid mermaid diagram type including flowcharts, sequence diagrams, class diagrams, ER diagrams, state diagrams, and more. After using this tool, include the returned rendered diagram verbatim in your chat response so the user can see it.",

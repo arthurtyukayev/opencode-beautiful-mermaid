@@ -45,6 +45,12 @@ Supported config locations:
 
 Restart OpenCode so the plugin is loaded.
 
+## Bundled Skill
+
+The plugin bundles a `mermaid-renderer` OpenCode skill in `skills/mermaid-renderer/SKILL.md`.
+
+At startup, the plugin adds its bundled `skills` directory to `config.skills.paths`, so OpenCode discovers the skill through the native skill system. Agents can then load it with the built-in `skill` tool, which displays compactly in the TUI instead of dumping the whole skill body as visible chat text.
+
 ### Local Plugin
 
 Install directly from this repo:
@@ -53,17 +59,22 @@ Install directly from this repo:
 bun run install:local
 ```
 
-This copies `index.ts` to:
+This builds and copies the plugin to:
 
 ```bash
-~/.config/opencode/plugins/beautiful-mermaid.ts
+~/.config/opencode/plugins/mermaid-renderer.js
 ```
+
+It also copies the bundled skill beside the local plugin so the plugin can register it through `skills.paths`.
 
 Manual copy option:
 
 ```bash
 mkdir -p ~/.config/opencode/plugins
-cp src/index.ts ~/.config/opencode/plugins/beautiful-mermaid.ts
+bun run build
+cp dist/index.js ~/.config/opencode/plugins/mermaid-renderer.js
+mkdir -p ~/.config/opencode/plugins/skills
+cp -R skills/mermaid-renderer ~/.config/opencode/plugins/skills/
 ```
 
 Restart OpenCode and the tool will be available automatically.
